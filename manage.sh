@@ -8,7 +8,7 @@ if [ "$command" == "install" ]; then
         mkdir -p logs
     fi
 
-    pip3 install -r requirements.txt
+    pip install -r requirements.txt
 elif [ "$command" == "start" ]; then
     echo "Starting bot..."
     echo "----------" >> logs/bot_log
