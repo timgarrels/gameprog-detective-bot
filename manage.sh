@@ -23,8 +23,8 @@ elif [ "$command" == "kill" ]; then
         echo "Bot not running"
     fi
 elif [ "$command" == "restart" ]; then
-    `./manage.sh kill`
-    `./manage.sh start`
+    ./manage.sh kill
+    ./manage.sh start
 elif [ "$command" == "help" ] || [ "$command" == "" ]; then
     echo "Usage: ./manage.sh [command]"
     echo ""
