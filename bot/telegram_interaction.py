@@ -56,6 +56,9 @@ def reply(update, context, filler=True):
             delay_reply_keyboard(reply_keyboard,
                                  keyboard_message_text, update, context)
         else:
+            # No keyboard message needed, provide last message
+            delay_answer(keyboard_message_text, update, context)
+            
             debug_string = "You are out of luck, the server did not provide further interaction..."
             context.bot.send_message(chat_id=update.effective_chat.id,
                                      text=debug_string,
