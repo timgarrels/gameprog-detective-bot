@@ -41,13 +41,13 @@ def user_already_registerd(telegram_handle):
         return True
     return False
 
-def try_to_register_user(start_token, user_handle):
+def try_to_register_user(start_token, user_handle, user_first_name):
     """ Calls register API endpoint to register the handle that provided a token.
     Returns True and response text if the register process was successfull (status 200),
     False and response text otherwise"""
     api_url = SERVER_URL + "/user/register?\
-telegramHandle={handle}&telegramStartToken={token}"
-    response = requests.get(api_url.format(handle=user_handle, token=start_token))
+telegramHandle={handle}&userFirstName={firstName}&telegramStartToken={token}"
+    response = requests.get(api_url.format(handle=user_handle, firstName=user_first_name, token=start_token))
     if response.status_code == 200:
         return True, response.text
     if response.status_code == 500:

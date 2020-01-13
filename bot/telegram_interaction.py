@@ -80,7 +80,7 @@ def start_command_callback(update, context):
     if not server.user_already_registerd(user.username):
         try:
             auth_key = context.args[0]
-            valid, response_text = server.try_to_register_user(auth_key, user.username)
+            valid, response_text = server.try_to_register_user(auth_key, user.username, user.first_name)
             if valid:
                 # Valid user auth key
                 context.bot.send_message(chat_id=chat_id, text="Always nice to see new faces")
