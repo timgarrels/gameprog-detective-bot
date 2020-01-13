@@ -47,8 +47,6 @@ def update(update, context):
             pull_log.write(str(datetime.now()))
         # Restart the server
         subprocess.Popen(['./manage.sh', 'restart'], stdout=FNULL)
-        context.bot.send_message(chat_id=update.effective_chat.id,
-                                 text="Successful redeploy of bot")
     except Exception as exception:
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text="Something went wrong!")
