@@ -3,39 +3,43 @@
 import requests
 
 from bot import LOGGER, SERVER_URL
+from bot.user_cache import UserCache
 
 # --------- Uitility ---------
-def get_answers(user, message):
+def get_answers(handle, message):
     """This is the first main part of the bot.
     It asks the server for an answer depending on a telegram user and a send message"""
-    api_url = SERVER_URL + """/users/answersForUserAndReply?\
-bot_handle={username}&reply={reply}"""
-    response = requests.get(api_url.format(username=user.username, reply=message.text))
+    api_url = SERVER_URL + "/users/{id}/story/proceed?reply={reply}"
+    user_id = UserCache.get(handle)
+
+    response = requests.get(api_url.format(id=user_id, reply=message.text))
     if response.status_code == 200:
         return response.json()
 
     debug_message = """The Server did not provide answers for \
-username '{username}' and message '{message}'"""
-    LOGGER.debug(debug_message.format(username=user.username, message=message.text))
+id '{id}' and message '{message}'"""
+    LOGGER.debug(debug_message.format(id=user_id, message=message.text))
     LOGGER.debug("Server Reply: {}".format(response.text))
     return []
 
-def get_new_user_reply_options(user):
+def get_new_user_reply_options(handle):
     """This is the second main part of the bot.
     It asks the server for replys depending on a telegram user.
     As the server knows the gamestate of that user it can provide individual replys"""
 
-    api_url = SERVER_URL + "/users/replyOptionsForUser?bot_handle={username}"
-    response = requests.get(api_url.format(username=user.username))
+    api_url = SERVER_URL + "/users/{id}/story/user-replies"
+    user_id = UserCache.get(handle)
+
+    response = requests.get(api_url.format(id=user_id))
     if response.status_code == 200:
         return response.json()
-    LOGGER.debug("The Server did not provide reply options for username {username}".format(
-        username=user.username))
+    LOGGER.debug("The Server did not provide reply options for id {id}".format(
+        id=user_id))
     return []
 
 def user_already_registerd(telegram_handle):
     """Check whether a telegram user is already playing"""
-    api_url = SERVER_URL + "/users?bot_handle={}"
+    api_url = SERVER_URL + "/users?handle={}"
     response = requests.get(api_url.format(telegram_handle))
     if response.status_code == 200:
         return True
@@ -46,8 +50,8 @@ def try_to_register_user(start_token, user_handle, user_first_name):
     Returns True and response text if the register process was successfull (status 200),
     False and response text otherwise"""
     api_url = SERVER_URL + "/users/register?\
-bot_handle={handle}&firstname={firstName}&token={token}"
-    response = requests.get(api_url.format(handle=user_handle, firstName=user_first_name, token=start_token))
+hanlde={handle}&firstname={firstname}&token={token}"
+    response = requests.get(api_url.format(handle=user_handle, firstname=user_first_name, token=start_token))
     if response.status_code == 200:
         return True, response.text
     if response.status_code == 500:
