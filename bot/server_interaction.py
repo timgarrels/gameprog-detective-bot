@@ -8,8 +8,8 @@ from bot import LOGGER, SERVER_URL
 def get_answers(user, message):
     """This is the first main part of the bot.
     It asks the server for an answer depending on a telegram user and a send message"""
-    api_url = SERVER_URL + """/user/answersForUserAndReply?\
-telegramUser={username}&reply={reply}"""
+    api_url = SERVER_URL + """/users/answersForUserAndReply?\
+bot_handle={username}&reply={reply}"""
     response = requests.get(api_url.format(username=user.username, reply=message.text))
     if response.status_code == 200:
         return response.json()
@@ -25,7 +25,7 @@ def get_new_user_reply_options(user):
     It asks the server for replys depending on a telegram user.
     As the server knows the gamestate of that user it can provide individual replys"""
 
-    api_url = SERVER_URL + "/user/replyOptionsForUser?telegramUser={username}"
+    api_url = SERVER_URL + "/users/replyOptionsForUser?bot_handle={username}"
     response = requests.get(api_url.format(username=user.username))
     if response.status_code == 200:
         return response.json()
@@ -35,7 +35,7 @@ def get_new_user_reply_options(user):
 
 def user_already_registerd(telegram_handle):
     """Check whether a telegram user is already playing"""
-    api_url = SERVER_URL + "/user/byTelegramHandle?telegramHandle={}"
+    api_url = SERVER_URL + "/users?bot_handle={}"
     response = requests.get(api_url.format(telegram_handle))
     if response.status_code == 200:
         return True
@@ -45,8 +45,8 @@ def try_to_register_user(start_token, user_handle, user_first_name):
     """ Calls register API endpoint to register the handle that provided a token.
     Returns True and response text if the register process was successfull (status 200),
     False and response text otherwise"""
-    api_url = SERVER_URL + "/user/register?\
-telegramHandle={handle}&userFirstName={firstName}&telegramStartToken={token}"
+    api_url = SERVER_URL + "/users/register?\
+bot_handle={handle}&firstname={firstName}&token={token}"
     response = requests.get(api_url.format(handle=user_handle, firstName=user_first_name, token=start_token))
     if response.status_code == 200:
         return True, response.text
