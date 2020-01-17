@@ -37,7 +37,7 @@ def send_filler(update, context):
 def reply(update, context, filler=True):
     """Proceesd the user in the story. Replys to message send by the player with API provided
     answers and displays new buttons"""
-    answers = server.get_answers(update.effective_user, update.message)
+    answers = server.get_answers(update.effective_user.username, update.message)
     # We can not reply if we did not get at least one answer for the reply keyboard
     if answers:
         if filler:
@@ -48,7 +48,7 @@ def reply(update, context, filler=True):
         for answer in answers:
             delay_answer(answer, update, context)
 
-        reply_options = sorted(server.get_new_user_reply_options(update.effective_user))
+        reply_options = sorted(server.get_new_user_reply_options(update.effective_user.username))
         if reply_options:
             reply_keyboard = ReplyKeyboardMarkup([
                 [KeyboardButton(reply_option) for reply_option in reply_options]
@@ -84,6 +84,7 @@ def start_command_callback(update, context):
             if valid:
                 # Valid user auth key
                 context.bot.send_message(chat_id=chat_id, text="Always nice to see new faces")
+                update.message.text = "/start"
                 reply(update, context, filler=False)
             else:
                 # Invalid user auth key

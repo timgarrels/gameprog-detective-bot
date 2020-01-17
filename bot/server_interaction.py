@@ -10,8 +10,11 @@ def get_answers(handle, message):
     """This is the first main part of the bot.
     It asks the server for an answer depending on a telegram user and a send message"""
     api_url = SERVER_URL + "/users/{id}/story/proceed?reply={reply}"
+    LOGGER.error("GETANSWERS HANDLE: {}".format(handle))
     user_id = UserCache.get(handle)
 
+    LOGGER.error("This id was send")
+    LOGGER.error(user_id)
     response = requests.get(api_url.format(id=user_id, reply=message.text))
     if response.status_code == 200:
         return response.json()
@@ -28,6 +31,7 @@ def get_new_user_reply_options(handle):
     As the server knows the gamestate of that user it can provide individual replys"""
 
     api_url = SERVER_URL + "/users/{id}/story/user-replies"
+    LOGGER.error("GETREPLYOPTIONS HANDLE: {}".format(handle))
     user_id = UserCache.get(handle)
 
     response = requests.get(api_url.format(id=user_id))
@@ -50,7 +54,7 @@ def try_to_register_user(start_token, user_handle, user_first_name):
     Returns True and response text if the register process was successfull (status 200),
     False and response text otherwise"""
     api_url = SERVER_URL + "/users/register?\
-hanlde={handle}&firstname={firstname}&token={token}"
+handle={handle}&firstname={firstname}&token={token}"
     response = requests.get(api_url.format(handle=user_handle, firstname=user_first_name, token=start_token))
     if response.status_code == 200:
         return True, response.text
