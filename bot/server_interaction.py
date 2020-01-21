@@ -3,7 +3,7 @@
 import requests
 
 from bot import LOGGER, SERVER_URL
-from bot.user_cache import UserCache
+from bot.user_cache import user_id_cache
 
 # --------- Uitility ---------
 def get_answers(handle, message):
@@ -11,7 +11,7 @@ def get_answers(handle, message):
     It asks the server for an answer depending on a telegram user and a send message"""
     api_url = SERVER_URL + "/users/{id}/story/proceed?reply={reply}"
     LOGGER.error("GETANSWERS HANDLE: {}".format(handle))
-    user_id = UserCache.get(handle)
+    user_id = user_id_cache[handle]
 
     LOGGER.error("This id was send")
     LOGGER.error(user_id)
@@ -32,7 +32,7 @@ def get_new_user_reply_options(handle):
 
     api_url = SERVER_URL + "/users/{id}/story/user-replies"
     LOGGER.error("GETREPLYOPTIONS HANDLE: {}".format(handle))
-    user_id = UserCache.get(handle)
+    user_id = user_id_cache[handle]
 
     response = requests.get(api_url.format(id=user_id))
     if response.status_code == 200:
