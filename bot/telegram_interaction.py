@@ -7,7 +7,7 @@ from bot import server_interaction as server
 
 
 def send_delayed_message(message, chat_id, context, reply_keyboard=None):
-    """Sends a message with realistic delay"""
+    """Sends a message and an optional reply keyboard with realistic delay"""
     time.sleep(len(message) * 0.04)
     context.bot.send_message(
         chat_id=chat_id,
@@ -15,7 +15,7 @@ def send_delayed_message(message, chat_id, context, reply_keyboard=None):
         reply_markup=reply_keyboard)
 
 def send_delayed_messages(messages, chat_id, context, reply_keyboard=None):
-    """Sends messages with realistic delay"""
+    """Sends multiple messages and an optional reply keyboard with realistic delay"""
     if reply_keyboard:
         # All messages require a text, even the reply markups. So reserve one answer for that markup
         last_message = messages.pop()
@@ -44,6 +44,7 @@ def send_filler(update, context):
 
 # ---------- Communication ----------
 def get_reply_keyboard(user_handle):
+    """Creates a reply keyboard from the users current answer options (fetched from server)"""
     reply_options = server.get_user_reply_options(user_handle)
 
     reply_keyboard = None
