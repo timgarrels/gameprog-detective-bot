@@ -6,16 +6,25 @@ import time
 from bot import server_interaction as server
 
 
-def delay_answer(answer, update, context):
-    """Sends a message delayed"""
-    time.sleep(len(answer) * 0.04)
-    context.bot.send_message(chat_id=update.effective_chat.id, text=answer)
+def send_delayed_message(message, chat_id, context, reply_keyboard=None):
+    """Sends a message with realistic delay"""
+    time.sleep(len(message) * 0.04)
+    context.bot.send_message(
+        chat_id=chat_id,
+        text=message,
+        reply_markup=reply_keyboard)
 
-def delay_reply_keyboard(reply_keyboard, keyboard_message_text, update, context):
-    """Sends a message with a keyboard delayed"""
-    time.sleep(len(keyboard_message_text) * 0.1)
-    context.bot.send_message(chat_id=update.effective_chat.id,
-                             text=keyboard_message_text, reply_markup=reply_keyboard)
+def send_delayed_messages(messages, chat_id, context, reply_keyboard=None):
+    """Sends messages with realistic delay"""
+    if reply_keyboard:
+        # All messages require a text, even the reply markups. So reserve one answer for that markup
+        last_message = messages.pop()
+        for message in messages:
+            send_delayed_message(message, chat_id, context)
+        send_delayed_message(last_message, chat_id, context, reply_keyboard)
+    else:
+        for message in messages:
+            send_delayed_message(message, chat_id, context)
 
 def send_filler(update, context):
     """We need to remove the old repy keyboard.
@@ -34,68 +43,55 @@ def send_filler(update, context):
                              text=filler, reply_markup=ReplyKeyboardMarkup([[KeyboardButton(" ")]]))
 
 # ---------- Communication ----------
+def get_reply_keyboard(user_handle):
+    reply_options = server.get_user_reply_options(user_handle)
+
+    reply_keyboard = None
+    if reply_options:
+        reply_keyboard = ReplyKeyboardMarkup([
+            [KeyboardButton(reply_option) for reply_option in reply_options]
+        ])
+    return reply_keyboard
+
 def reply(update, context, filler=True):
-    """Proceesd the user in the story. Replys to message send by the player with API provided
+    """Proceeds the user in the story. Replies to message send by the player with API provided
     answers and displays new buttons"""
-    answers = server.get_answers(update.effective_user.username, update.message)
-    # We can not reply if we did not get at least one answer for the reply keyboard
-    if answers:
+    user_handle = update.effective_user.username
+
+    server_response = server.send_user_reply(user_handle, update.message)
+    if server_response:
+        # TODO: remove filler once bot can delete invalid user replies
         if filler:
             send_filler(update, context)
-        # All messages require a text, even the reply markups. So reserve one answer for that markup
-        keyboard_message_text = answers.pop()
 
-        for answer in answers:
-            delay_answer(answer, update, context)
+        if not server_response["validReply"]:
+            # TODO: delete message
+            pass
 
-        reply_options = sorted(server.get_new_user_reply_options(update.effective_user.username))
-        if reply_options:
-            reply_keyboard = ReplyKeyboardMarkup([
-                [KeyboardButton(reply_option) for reply_option in reply_options]
-            ])
-            delay_reply_keyboard(reply_keyboard,
-                                 keyboard_message_text, update, context)
-        else:
-            # No keyboard message needed, provide last message
-            delay_answer(keyboard_message_text, update, context)
-            
-            debug_string = "You are out of luck, the server did not provide further interaction..."
-            context.bot.send_message(chat_id=update.effective_chat.id,
-                                     text=debug_string,
-                                     reply_markup=ReplyKeyboardMarkup([[KeyboardButton(" ")]]))
-    else:
-        pass
-        # context.bot.send_message(chat_id=update.effective_chat.id,
-        #                          text="The server did not provide any answers at all")
+        if server_response["messagesUpdated"]:
+            messages = server.get_messages(user_handle)
+            reply_keyboard = get_reply_keyboard(user_handle)
+            send_delayed_messages(messages, update.effective_chat.id, context, reply_keyboard)
 
 # --------- Register handshake ---------
-
 def start_command_callback(update, context):
     """ Provides logic to handle a newly started chat with a user """
     user = update.effective_user
-    chat_id = update.effective_chat.id
+    user_handle = user.username
 
     # TODO: What does this do?
     # Nothing should happen if a user types "\start" if he is already registered
-    if not server.user_already_registerd(user.username):
+    if not server.user_already_registered(user_handle):
         try:
             auth_key = context.args[0]
-            valid, response_text = server.try_to_register_user(auth_key, user.username, user.first_name)
+            valid, response_text = server.try_to_register_user(auth_key, user_handle, user.first_name)
             if valid:
-                # Valid user auth key
-                context.bot.send_message(chat_id=chat_id, text="Always nice to see new faces")
-                update.message.text = "/start"
-                reply(update, context, filler=False)
+                messages = server.get_messages(user_handle)
             else:
-                # Invalid user auth key
-                context.bot.send_message(chat_id=chat_id, text="I don't know you!")
-                context.bot.send_message(chat_id=chat_id, text="I don't speak to strangers!")
-                context.bot.send_message(chat_id=chat_id,
-                                        text="Server Response:\n{}".format(response_text))
-
+                messages = ["I don't know you!", "I don't speak to strangers", f"Server Response: {response_text}"]
         except IndexError:
             # No Auth key
-            context.bot.send_message(chat_id=update.effective_chat.id, text="Who are you?")
-            context.bot.send_message(chat_id=update.effective_chat.id,
-                                    text="I don't speak to people who don't introduce themselves!")
-            context.bot.send_message(chat_id=update.effective_chat.id, text="<no token>")
+            messages = ["Who are you?", "I don't speak to people who don't introduce themselves!", "<no token>"]
+        
+        reply_keyboard = get_reply_keyboard(user_handle)
+        send_delayed_messages(messages, update.effective_chat.id, context, reply_keyboard)
