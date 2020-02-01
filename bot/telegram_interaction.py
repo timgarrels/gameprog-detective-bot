@@ -4,12 +4,12 @@ from telegram import ReplyKeyboardMarkup, KeyboardButton
 import time
 
 from bot import server_interaction as server
-
+from bot import LOGGER
 
 def send_delayed_message(message, chat_id, context, reply_keyboard=None):
-    """Sends a message and an optional reply keyboard with realistic delay"""
+    """Sends a message and an optional reply keyboard with realistic delay and return the Message object"""
     time.sleep(len(message) * 0.04)
-    context.bot.send_message(
+    return context.bot.send_message(
         chat_id=chat_id,
         text=message,
         reply_markup=reply_keyboard)
@@ -26,23 +26,18 @@ def send_delayed_messages(messages, chat_id, context, reply_keyboard=None):
         for message in messages:
             send_delayed_message(message, chat_id, context)
 
-def send_filler(update, context):
-    """We need to remove the old repy keyboard.
-    Telegram API does not allow us to replace the keyboard with an empty one
-    without a message send. Removing (not replacing) the keyboard would be possible,
-    but makes the screen of the user jump up and down.
-    This function chooses a filler like "I see" from a list (which should
-    contain a lot of __small__ filler statements) and sends
-    an empty keyboard to remove old keyboard"""
-    # TODO: This is a hacky solution, but I did not find a better one
-    # after exploring OneTimeKeyboards
-    # Needs further discussion
-    # Tim Garrels, 23_Nov_2019
-    filler = random.choice(["I see", "If you say so", "Mh", "Ah"])
-    context.bot.send_message(chat_id=update.effective_chat.id,
-                             text=filler, reply_markup=ReplyKeyboardMarkup([[KeyboardButton(" ")]]))
+def delete_message(message, chat_id, context):
+    """deletes a message from a user"""
+    context.bot.delete_message(chat_id, message.message_id)
 
-# ---------- Communication ----------
+def flush_delete_queue(chat_id, context):
+    """delete all the messages that have been added to the chat's delete queue and clear the queue"""
+    delete_queue = context.chat_data.get("delete_queue")
+    if delete_queue:
+        for message in delete_queue:
+            delete_message(message, chat_id, context)
+        delete_queue.clear()
+
 def get_reply_keyboard(user_handle):
     """Creates a reply keyboard from the users current answer options (fetched from server)"""
     reply_options = server.get_user_reply_options(user_handle)
@@ -70,14 +65,14 @@ def reply(update, context, filler=True):
 
     server_response = server.proceed_story(user_handle, user_reply)
     if server_response:
-        # TODO: remove filler once bot can delete invalid user replies
-        if filler:
-            send_filler(update, context)
-
         if not server_response["validReply"]:
-            # TODO: delete message
-            pass
+            delete_queue = context.chat_data.setdefault("delete_queue", [])
+            delete_queue.append(user_reply)
+            message = "use the provided buttons!"
+            reply_keyboard = get_reply_keyboard(user_handle)
+            delete_queue.append(send_delayed_message(message, chat_id, context, reply_keyboard))
         else:
+            flush_delete_queue(chat_id, context)
             messages = server_response["newMessages"]
             reply_keyboard = get_reply_keyboard(user_handle)
             send_delayed_messages(messages, chat_id, context, reply_keyboard)
