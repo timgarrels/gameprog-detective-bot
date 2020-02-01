@@ -16,14 +16,18 @@ def main():
     updater = Updater(token=BOT_TOKEN, use_context=True)
     dispatcher = updater.dispatcher
 
-    # Register \start command handler
+    # Register /start command handler
     start_handler = CommandHandler('start', telegram_interaction.start_command_callback)
     dispatcher.add_handler(start_handler)
 
     # TODO: For dev purpose only
-    # Register \update command handler
+    # Register /update command handler
     update_handler = CommandHandler('update', update)
     dispatcher.add_handler(update_handler)
+
+    # Register /describe command handler
+    describe_handler = CommandHandler('describe', telegram_interaction.send_current_description)
+    dispatcher.add_handler(describe_handler)
 
     # Register all purpose text handler
     text_handler = MessageHandler(Filters.all, telegram_interaction.reply)

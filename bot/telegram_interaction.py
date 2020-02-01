@@ -54,12 +54,21 @@ def get_reply_keyboard(user_handle):
         ])
     return reply_keyboard
 
+def send_current_description(update, context):
+    """sends the current story point description and corresponding user replies"""
+    user_handle = update.effective_user.username
+    messages = server.get_current_story_description(user_handle)
+    reply_keyboard = get_reply_keyboard(user_handle)
+    send_delayed_messages(messages, update.effective_chat.id, context, reply_keyboard)
+
 def reply(update, context, filler=True):
     """Proceeds the user in the story. Replies to message send by the player with API provided
     answers and displays new buttons"""
     user_handle = update.effective_user.username
+    chat_id = update.effective_chat.id
+    user_reply = update.message
 
-    server_response = server.send_user_reply(user_handle, update.message)
+    server_response = server.proceed_story(user_handle, user_reply)
     if server_response:
         # TODO: remove filler once bot can delete invalid user replies
         if filler:
@@ -68,11 +77,10 @@ def reply(update, context, filler=True):
         if not server_response["validReply"]:
             # TODO: delete message
             pass
-
-        if server_response["messagesUpdated"]:
-            messages = server.get_messages(user_handle)
+        else:
+            messages = server_response["newMessages"]
             reply_keyboard = get_reply_keyboard(user_handle)
-            send_delayed_messages(messages, update.effective_chat.id, context, reply_keyboard)
+            send_delayed_messages(messages, chat_id, context, reply_keyboard)
 
 # --------- Register handshake ---------
 def start_command_callback(update, context):
