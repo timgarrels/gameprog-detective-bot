@@ -4,7 +4,6 @@ from telegram import ReplyKeyboardMarkup, KeyboardButton
 import time
 
 from bot import server_interaction as server
-from bot import LOGGER
 
 def send_delayed_message(message, chat_id, context, reply_keyboard=None):
     """Sends a message and an optional reply keyboard with realistic delay and return the Message object"""
