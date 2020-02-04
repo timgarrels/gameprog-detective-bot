@@ -13,7 +13,7 @@ def send_delayed_message(message, chat_id, context, reply_keyboard=None):
         text=message,
         reply_markup=reply_keyboard)
 
-def send_delayed_messages(messages, chat_id, context, reply_keyboard=None):
+def send_multiple_delayed_messages(messages, chat_id, context, reply_keyboard=None):
     """Sends multiple messages and an optional reply keyboard with realistic delay"""
     if reply_keyboard:
         # All messages require a text, even the reply markups. So reserve one answer for that markup
@@ -53,7 +53,7 @@ def send_current_description(update, context):
     user_handle = update.effective_user.username
     messages = server.get_current_story_description(user_handle)
     reply_keyboard = get_reply_keyboard(user_handle)
-    send_delayed_messages(messages, update.effective_chat.id, context, reply_keyboard)
+    send_multiple_delayed_messages(messages, update.effective_chat.id, context, reply_keyboard)
 
 def reply(update, context, filler=True):
     """Proceeds the user in the story. Replies to message send by the player with API provided
@@ -74,7 +74,7 @@ def reply(update, context, filler=True):
             flush_delete_queue(chat_id, context)
             messages = server_response["newMessages"]
             reply_keyboard = get_reply_keyboard(user_handle)
-            send_delayed_messages(messages, chat_id, context, reply_keyboard)
+            send_multiple_delayed_messages(messages, chat_id, context, reply_keyboard)
 
 # --------- Register handshake ---------
 def start_command_callback(update, context):
@@ -97,4 +97,4 @@ def start_command_callback(update, context):
             messages = ["Who are you?", "I don't speak to people who don't introduce themselves!", "<no token>"]
         
         reply_keyboard = get_reply_keyboard(user_handle)
-        send_delayed_messages(messages, update.effective_chat.id, context, reply_keyboard)
+        send_multiple_delayed_messages(messages, update.effective_chat.id, context, reply_keyboard)
