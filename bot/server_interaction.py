@@ -11,43 +11,37 @@ def proceed_story(handle, user_reply):
     returns the server response on success (None otherwise)"""
     api_url = SERVER_URL + "/users/{id}/story/proceed?reply={reply}"
     user_id = user_id_cache[handle]
-    LOGGER.debug(f"PROCEED STORY HANDLE: {handle}")
-
-    response = requests.get(api_url.format(id=user_id, reply=user_reply.text))
-
-    if response.status_code == 200:
-        return response.json()
-    else:
+    if user_id:
+        response = requests.get(api_url.format(id=user_id, reply=user_reply.text))
+        if response.status_code == 200:
+            return response.json()
         LOGGER.error(f"There was an error while proceeding the story for user {user_id} and user reply {user_reply.text}")
         LOGGER.error(f"Server Reply: {response.text}")
-        return None
+    return None
 
 def get_current_story_description(handle):
     """asks the server for messages for a telegram user and returns it"""
     api_url = SERVER_URL + "/users/{id}/story/current-story-point/description"
     user_id = user_id_cache[handle]
-    LOGGER.debug(f"GET DESCRIPTION HANDLE: {handle}")
-
-    response = requests.get(api_url.format(id=user_id))
-    if response.status_code == 200:
-        return response.json()
-    else:
+    if user_id:
+        response = requests.get(api_url.format(id=user_id))
+        if response.status_code == 200:
+            return response.json()
         LOGGER.error(f"The server did not provide a story description for user {user_id}")
         LOGGER.error(f"Server Reply: {response.text}")
-        return []
+    return []
 
 def get_user_reply_options(handle):
     """asks the server for reply options for a telegram user and returns them"""
     api_url = SERVER_URL + "/users/{id}/story/current-story-point/user-replies"
     user_id = user_id_cache[handle]
-    LOGGER.debug(f"GET REPLY OPTIONS HANDLE: {handle}")
-
-    response = requests.get(api_url.format(id=user_id))
-    if response.status_code == 200:
-        return response.json()
-    else:
-        LOGGER.debug(f"The Server did not provide reply options for user {user_id}")
-        return []
+    if user_id:
+        response = requests.get(api_url.format(id=user_id))
+        if response.status_code == 200:
+            return response.json()
+        LOGGER.error(f"The Server did not provide reply options for user {user_id}")
+        LOGGER.error(f"Server Reply: {response.text}")
+    return []
 
 def user_already_registered(telegram_handle):
     """Check whether a telegram user is already playing"""
