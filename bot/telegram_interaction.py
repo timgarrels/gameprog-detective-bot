@@ -89,7 +89,7 @@ def start_command_callback(update, context):
             auth_key = context.args[0]
             valid, response_text = server.try_to_register_user(auth_key, user_handle, user.first_name)
             if valid:
-                messages = server.get_messages(user_handle)
+                messages = server.get_current_story_description(user_handle)
             else:
                 messages = ["I don't know you!", "I don't speak to strangers", f"Server Response: {response_text}"]
         except IndexError:
