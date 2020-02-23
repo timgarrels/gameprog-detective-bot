@@ -7,9 +7,24 @@ if [ "$command" == "install" ]; then
         echo "Creating logs directory"
         mkdir -p logs
     fi
-
-    pip install -r requirements.txt
+    if [ ! -d .venv ]; then
+        echo "Creating virual environment"
+        python3 -m venv .venv
+    fi
+    source .venv/bin/activate
+    pip3 install -r requirements.txt
 elif [ "$command" == "start" ]; then
+    if ps -p `cat logs/bot_pid` > /dev/null; then
+        echo "bot already running"
+        exit
+    fi
+    if [ -d .venv ]; then
+        source .venv/bin/activate
+    else
+        echo "please first install the bot"
+        exit
+    fi
+    [ -f env_vars ] && source env_vars
     echo "Starting bot..."
     echo "----------" >> logs/bot_log
     python3 bot.py >> logs/bot_log 2>&1 &
