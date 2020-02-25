@@ -53,6 +53,7 @@ elif [ "$command" == "help" ] || [ "$command" == "" ]; then
     echo "./manage.sh start - Start new Bot instance"
     echo "./manage.sh kill - Kill running Bot instance"
     echo "./manage.sh restart - Kill running Bot instance and start a new one"
+    echo "./manage.sh log - Show Bot logs"
     echo "./manage.sh help - Display this text"
 else
     echo "Unkown command, use ./manage.sh help to view available commands"
