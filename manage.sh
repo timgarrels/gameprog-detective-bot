@@ -43,6 +43,8 @@ elif [ "$command" == "kill" ]; then
 elif [ "$command" == "restart" ]; then
     ./manage.sh kill
     ./manage.sh start
+elif [ "$command" == "log" ]; then
+    cat logs/bot_log
 elif [ "$command" == "help" ] || [ "$command" == "" ]; then
     echo "Usage: ./manage.sh [command]"
     echo ""
