@@ -82,9 +82,9 @@ def start_command_callback(update, context):
     user = update.effective_user
     user_handle = user.username
 
-    # TODO: What does this do?
-    # Nothing should happen if a user types "\start" if he is already registered
-    if not server.user_already_registered(user_handle):
+    if server.user_already_registered(user_handle):
+        send_current_description(update, context)
+    else:
         try:
             auth_key = context.args[0]
             valid, response_text = server.try_to_register_user(auth_key, user_handle, user.first_name)

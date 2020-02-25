@@ -43,12 +43,13 @@ def get_user_reply_options(handle):
         LOGGER.error(f"Server Reply: {response.text}")
     return []
 
-def user_already_registered(telegram_handle):
-    """Check whether a telegram user is already playing"""
+def user_already_registered(handle):
+    """Check whether a user is already playing"""
     api_url = SERVER_URL + "/users?handle={}"
-    response = requests.get(api_url.format(telegram_handle))
+    response = requests.get(api_url.format(handle))
     if response.status_code == 200:
         return True
+    user_id_cache.pop(handle, "")
     return False
 
 def try_to_register_user(start_token, user_handle, user_first_name):
