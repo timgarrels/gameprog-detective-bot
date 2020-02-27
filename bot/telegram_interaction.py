@@ -68,7 +68,7 @@ def reply(update, context, filler=True):
         if not server_response["validReply"]:
             delete_queue = context.chat_data.setdefault("delete_queue", [])
             delete_queue.append(user_reply)
-            message = "use the provided buttons!"
+            message = "Benutze die vorgegebenen Buttons"
             reply_keyboard = get_reply_keyboard(user_handle)
             delete_queue.append(send_delayed_message(message, chat_id, context, reply_keyboard))
         else:
@@ -92,10 +92,10 @@ def start_command_callback(update, context):
             if valid:
                 messages = server.get_current_story_description(user_handle)
             else:
-                messages = ["I don't know you!", "I don't speak to strangers", f"Server Response: {response_text}"]
+                messages = ["Ich kenne dich nicht...", "Ich spreche nicht mit Fremden", f"Server Response: {response_text}"]
         except IndexError:
             # No Auth key
-            messages = ["Who are you?", "I don't speak to people who don't introduce themselves!", "<no token>"]
+            messages = ["Wer bist du?", "<no token>"]
         
         reply_keyboard = get_reply_keyboard(user_handle)
         send_multiple_delayed_messages(messages, update.effective_chat.id, context, reply_keyboard)
