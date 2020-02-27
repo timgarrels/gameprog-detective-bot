@@ -1,6 +1,6 @@
 """Bot talking to a telegram user"""
 import random
-from telegram import ReplyKeyboardMarkup, KeyboardButton
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton
 import time
 
 from bot import server_interaction as server
@@ -26,7 +26,7 @@ def send_multiple_delayed_messages(messages, chat_id, context, reply_keyboard=No
         send_delayed_message(last_message, chat_id, context, reply_keyboard)
     else:
         for message in messages:
-            send_delayed_message(message, chat_id, context)
+            send_delayed_message(message, chat_id, context, reply_keyboard=ReplyKeyboardRemove())
 
 def delete_message(message, chat_id, context):
     """deletes a message from a user"""
