@@ -16,7 +16,10 @@ def send_delayed_message(message, chat_id, context, reply_keyboard=None):
 def send_multiple_delayed_messages(messages, chat_id, context, reply_keyboard=None):
     """Sends multiple messages and an optional reply keyboard with realistic delay"""
     if reply_keyboard:
-        # All messages require a text, even the reply markups. So reserve one answer for that markup
+        if len(messages) == 0:
+            return
+        if len(messages) >= 2:
+            send_delayed_message(messages.pop(0), chat_id, context, reply_keyboard=ReplyKeyboardMarkup([[" "]], True))
         last_message = messages.pop()
         for message in messages:
             send_delayed_message(message, chat_id, context)
@@ -43,9 +46,7 @@ def get_reply_keyboard(user_handle):
 
     reply_keyboard = None
     if reply_options:
-        reply_keyboard = ReplyKeyboardMarkup([
-            [KeyboardButton(reply_option) for reply_option in reply_options]
-        ])
+        reply_keyboard = ReplyKeyboardMarkup([[reply_option] for reply_option in reply_options], True)
     return reply_keyboard
 
 def send_current_description(update, context):
