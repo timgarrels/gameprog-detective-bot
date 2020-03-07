@@ -15,7 +15,8 @@ if [ "$command" == "install" ]; then
         python3 -m venv .venv
     fi
     source .venv/bin/activate
-    pip3 install -r requirements.txt
+    pip install --upgrade pip
+    pip install -r requirements.txt
 elif [ "$command" == "start" ]; then
     if ps -p `cat logs/bot_pid` > /dev/null; then
         echo "bot already running"
