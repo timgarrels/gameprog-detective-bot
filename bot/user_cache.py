@@ -4,7 +4,9 @@ from json.decoder import JSONDecodeError
 from bot import LOGGER, SERVER_URL
 
 class UserIdCache(dict):
+    """Caches telegramHandle - userId relations"""
     def __missing__(self, handle):
+        """Updates cache on missing userId by making a server request"""
         api_url = SERVER_URL + "/users?handle={handle}"
         response = requests.get(api_url.format(handle=handle))
         if response.status_code != 200:
