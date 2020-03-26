@@ -12,7 +12,7 @@ def proceed_story(handle, user_reply):
     api_url = SERVER_URL + "/users/{id}/story/proceed?reply={reply}"
     user_id = user_id_cache[handle]
     if user_id:
-        response = requests.get(api_url.format(id=user_id, reply=user_reply.text))
+        response = requests.post(api_url.format(id=user_id, reply=user_reply.text))
         if response.status_code == 200:
             return response.json()
         LOGGER.error(f"There was an error while proceeding the story for user {user_id} and user reply {user_reply.text}")
@@ -58,7 +58,7 @@ def try_to_register_user(start_token, user_handle, user_first_name):
     False and response text otherwise"""
     api_url = SERVER_URL + "/users/register?\
 handle={handle}&firstname={firstname}&token={token}"
-    response = requests.get(api_url.format(handle=user_handle, firstname=user_first_name, token=start_token))
+    response = requests.patch(api_url.format(handle=user_handle, firstname=user_first_name, token=start_token))
     if response.status_code == 200:
         return True, response.text
     if response.status_code == 500:
