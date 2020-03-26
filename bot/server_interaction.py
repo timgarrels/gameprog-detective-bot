@@ -43,14 +43,13 @@ def get_user_reply_options(handle):
         LOGGER.error(f"Server Reply: {response.text}")
     return []
 
-def user_already_registered(handle):
-    """Check whether a user is already playing"""
-    api_url = SERVER_URL + "/users?handle={}"
-    response = requests.get(api_url.format(handle))
-    if response.status_code == 200:
-        return True
+def reset_user(handle):
+    """if a user with the given user already exists, reset it"""
     user_id_cache.pop(handle, "")
-    return False
+    response = requests.get(SERVER_URL + f"/users?handle={handle}")
+    if response.status_code == 200:
+        user_id = response.json()["userId"]
+        requests.patch(SERVER_URL + f"/users/{user_id}/reset")
 
 def try_to_register_user(start_token, user_handle, user_first_name):
     """ Calls register API endpoint to register the handle that provided a token.

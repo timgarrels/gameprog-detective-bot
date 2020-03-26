@@ -83,19 +83,17 @@ def start_command_callback(update, context):
     user = update.effective_user
     user_handle = user.username
 
-    if server.user_already_registered(user_handle):
-        send_current_description(update, context)
-    else:
-        try:
-            auth_key = context.args[0]
-            valid, response_text = server.try_to_register_user(auth_key, user_handle, user.first_name)
-            if valid:
-                messages = server.get_current_story_description(user_handle)
-            else:
-                messages = ["Ich kenne dich nicht...", "Ich spreche nicht mit Fremden", f"Server Response: {response_text}"]
-        except IndexError:
-            # No Auth key
-            messages = ["Wer bist du?", "<no token>"]
-        
-        reply_keyboard = get_reply_keyboard(user_handle)
-        send_multiple_delayed_messages(messages, update.effective_chat.id, context, reply_keyboard)
+    server.reset_user(user_handle)
+    try:
+        auth_key = context.args[0]
+        valid, response_text = server.try_to_register_user(auth_key, user_handle, user.first_name)
+        if valid:
+            messages = server.get_current_story_description(user_handle)
+        else:
+            messages = ["Ich kenne dich nicht...", "Ich spreche nicht mit Fremden", f"Server Response: {response_text}"]
+    except IndexError:
+        # No Auth key
+        messages = ["Wer bist du?", "<no token>"]
+    
+    reply_keyboard = get_reply_keyboard(user_handle)
+    send_multiple_delayed_messages(messages, update.effective_chat.id, context, reply_keyboard)
