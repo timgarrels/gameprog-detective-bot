@@ -44,7 +44,7 @@ def get_user_reply_options(handle):
     return []
 
 def reset_user(handle):
-    """if a user with the given user already exists, reset it"""
+    """resets a user if telegramHandle already registered at the server """
     user_id_cache.pop(handle, "")
     response = requests.get(SERVER_URL + f"/users?handle={handle}")
     if response.status_code == 200:
