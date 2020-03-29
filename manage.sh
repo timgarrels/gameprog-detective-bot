@@ -17,23 +17,41 @@ if [ "$command" == "install" ]; then
     source .venv/bin/activate
     pip install --upgrade pip
     pip install -r requirements.txt
-elif [ "$command" == "start" ]; then
+    set_env=true
+    if [ -f env_vars ]; then
+        read -p "Firebase URL and bot token already set - reset them? (y/n): " reset_env
+        if [ $reset_env != "y" ]; then set_env=false; fi
+    fi
+    if $set_env; then
+        echo "==========================================================================="
+        read -p "Please enter the IP adress of the server (defaults to localhost): " server_ip
+        read -p "Please enter the token of your bot (received from the telegram bot father): " bot_token
+        echo "==========================================================================="
+        server_url=$([ $server_ip == "" ] && echo localhost || echo "http://$server_ip:8080")
+        echo "export GP_SERVER_URL=$server_url" > env_vars
+        echo "export GP_TELEGRAM_BOT_TOKEN=$bot_token" >> env_vars
+    fi
+    exit
+fi
+
+# try to load venv
+if [ -d .venv ]; then
+    source .venv/bin/activate
+else
+    echo "please first install the bot"
+    exit
+fi
+[ -f env_vars ] && source env_vars
+
+if [ "$command" == "start" ]; then
     if ps -p `cat logs/bot_pid` > /dev/null; then
         echo "bot already running"
         exit
     fi
-    if [ -d .venv ]; then
-        source .venv/bin/activate
-    else
-        echo "please first install the bot"
-        exit
-    fi
-    [ -f env_vars ] && source env_vars
     echo "Starting bot..."
     echo "----------" >> logs/bot_log
-    python3 bot.py >> logs/bot_log 2>&1 &
+    python bot.py >> logs/bot_log 2>&1 &
     echo $! > logs/bot_pid
-    echo "For logs use cat logs/bot_log"
 elif [ "$command" == "kill" ]; then
     if ps -p `cat logs/bot_pid` > /dev/null; then
         echo "Killing running bot..."
@@ -45,7 +63,7 @@ elif [ "$command" == "restart" ]; then
     ./manage.sh kill
     ./manage.sh start
 elif [ "$command" == "log" ]; then
-    cat logs/bot_log
+    less -r +F logs/bot_log
 elif [ "$command" == "help" ] || [ "$command" == "" ]; then
     echo "Usage: ./manage.sh [command]"
     echo ""
