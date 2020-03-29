@@ -1,7 +1,7 @@
 # gameprog-detective-bot
 
 Dies ist der `bot` Teil des Gameprog Projektes von Antonio Dimeo, Tim Garrels, Paul Methfessel und Robin Wersich.
-Eine umfassende README ist im repository des [Servers](https://github.com/EatingBacon/gameprog-detective-server) zu finden.
+Eine umfassende README ist im Repository des [Servers](https://github.com/EatingBacon/gameprog-detective-server) zu finden.
 
 ## Install and Start
 Voraussetzung ist ein installiertes Python 3
