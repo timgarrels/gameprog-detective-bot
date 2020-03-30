@@ -19,7 +19,7 @@ if [ "$command" == "install" ]; then
     pip install -r requirements.txt
     set_env=true
     if [ -f env_vars ]; then
-        read -p "Firebase URL and bot token already set - reset them? (y/n): " reset_env
+        read -p "server URL and bot token already set - reset them? (y/n): " reset_env
         if [ $reset_env != "y" ]; then set_env=false; fi
     fi
     if $set_env; then
@@ -27,7 +27,7 @@ if [ "$command" == "install" ]; then
         read -p "Please enter the IP adress of the server (defaults to localhost): " server_ip
         read -p "Please enter the token of your bot (received from the telegram bot father): " bot_token
         echo "==========================================================================="
-        server_url=$([ $server_ip == "" ] && echo localhost || echo "http://$server_ip:8080")
+        server_url=$([ -z $server_ip ] && echo localhost || echo "http://$server_ip:8080")
         echo "export GP_SERVER_URL=$server_url" > env_vars
         echo "export GP_TELEGRAM_BOT_TOKEN=$bot_token" >> env_vars
     fi
