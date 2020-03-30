@@ -44,7 +44,7 @@ fi
 [ -f env_vars ] && source env_vars
 
 if [ "$command" == "start" ]; then
-    if ps -p `cat logs/bot_pid` > /dev/null; then
+    if [ -f logs/bot_pid ] && ps -p `cat logs/bot_pid` > /dev/null; then
         echo "bot already running"
         exit
     fi
@@ -53,7 +53,7 @@ if [ "$command" == "start" ]; then
     python bot.py >> logs/bot_log 2>&1 &
     echo $! > logs/bot_pid
 elif [ "$command" == "kill" ]; then
-    if ps -p `cat logs/bot_pid` > /dev/null; then
+    if [ -f logs/bot_pid ] && ps -p `cat logs/bot_pid` > /dev/null; then
         echo "Killing running bot..."
         kill -9 `cat logs/bot_pid`
     else
